@@ -2,7 +2,7 @@
 namespace nlac;
 
 /** 
- * NLSClientScript v7.0
+ * NLSClientScript 7.0.0-beta
  * 
  * a Yii CClientScript extension for 
  * - preventing multiple loading of javascript files

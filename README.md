@@ -1,5 +1,5 @@
-nlsclientscript 7.0beta
-=======================
+nlsclientscript 7.0.0-beta
+==========================
 
 a Yii 1.x CClientScript extension to prevent reloading javascript libraries and merging/minifying resources
 
