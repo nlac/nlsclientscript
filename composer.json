@@ -12,6 +12,6 @@
 	}],
 	"require": {
 		"php": ">=5.3.0",
-		"tedivm/jshrink": "dev-master"
+		"tedivm/jshrink": "~1.0"
 	}
 }
