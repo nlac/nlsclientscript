@@ -1,4 +1,4 @@
-nlsclientscript 7.0.0-beta
+nlsclientscript 7.0.0-beta2
 ==========================
 
 a Yii 1.x CClientScript extension to prevent reloading javascript libraries and merging/minifying resources
@@ -11,5 +11,13 @@ What's new compared to 6.x
 * composer support
 * demo app
 * moved to github:)
+* available on packagist.org
 
-Learn more on the demo page http://nlacsoft.net/nlsclientscript
+Composer require section: "nlac/nlsclientscript": "dev-master"
+
+
+Official demo, tutorial: http://nlacsoft.net/nlsclientscript
+
+Packagist home: https://packagist.org/packages/nlac/nlsclientscript
+
+Old Yii page: http://www.yiiframework.com/extension/nlsclientscript
