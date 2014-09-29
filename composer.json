@@ -16,7 +16,7 @@
 	},
 	"autoload": {
 		"psr-0": {
-			"nlac": "vendor/nlac/nlsclientscript/src"
+			"nlac": "src"
 		}
 	}
 }
