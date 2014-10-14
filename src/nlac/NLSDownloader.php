@@ -66,7 +66,7 @@ class NLSDownloader {
 		curl_setopt($this->ch, CURLOPT_URL, $url);
 		$content = curl_exec($this->ch);
 		if ($this->err = curl_error($this->ch)) {
-			throw new Exception('Couldn\'t download ' . $url . '\n' . print_r($this->err,true));
+			throw new \Exception('Couldn\'t download ' . $url . '\n' . print_r($this->err,true));
 		}
 		return $content;
 	}
