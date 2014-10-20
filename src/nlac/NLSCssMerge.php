@@ -31,6 +31,8 @@ class NLSCssMerge {
 	protected function replaceUrls($content, $baseUrl) {
 		
 		$content = preg_replace_callback('/(url\s*\(\s*[\'"]?\s*)([^\)\'"]+)/i', function($m) use ($baseUrl) {
+			if (preg_match('@^data:@i',$m[2]))
+				return $m[0];
 			$absUrl = $this->downloader->toAbsUrl($m[2], $baseUrl);
 			if ($this->options['downloadResources']) {
 				$resource = $this->downloader->get($absUrl);

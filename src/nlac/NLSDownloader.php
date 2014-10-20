@@ -66,7 +66,7 @@ class NLSDownloader {
 		curl_setopt($this->ch, CURLOPT_URL, $url);
 		$content = curl_exec($this->ch);
 		if ($this->err = curl_error($this->ch)) {
-			throw new \Exception('Couldn\'t download ' . $url . '\n' . print_r($this->err,true));
+			throw new \Exception('Couldn\'t download ' . $url . "\n" . print_r($this->err,true));
 		}
 		return $content;
 	}
@@ -92,41 +92,45 @@ class NLSDownloader {
 	 * Code based on http://99webtools.com/relative-path-into-absolute-url.php
 	 */
 	public function toAbsUrl($rel, $base = null) {
-		
+
 		//FB::info(array($rel, $base), 'toAbsUrl() called');
 		
 		if (!$base)
 			$base = $this->options['appBaseUrl'];
-		
+
 		//already absolute URL
 		if (preg_match('@^https?://@',$rel))
 			return $rel;
 		
 		if (!$base || !preg_match('@^https?://@',$base)) {
-			throw new Exception('base url must be provided');
+			throw new \Exception('base url with scheme must be provided');
 		}
 		
-		//-> $scheme, $host, $path
-		$path = '';
+		//-> $scheme, $host, $port, $path (+ maybe $query, $fragment)
+		$port='';$path='';//make sure that these variables will exist
 		extract(parse_url($base));
+		if ($port) $port = ':'.$port;
 		
-		//FB::log(array($rel, $scheme, $host, $path),'$rel, $scheme, $host, $path');
-		
+		//remove non-directory (file) part from the end of $path
+		$path = preg_replace('@/([^/]*\.)+[^/]*$@', '', $path);
+
+		//removing queries + fragments
+		$base = $scheme . '://' . $host . $port . $path;
+
+		//prepending scheme to protocol-relative urls
 		if (substr($rel,0,2) == '//')
-			return $scheme . '://' . $host . preg_replace('@^/@','',$rel);
-		
+			return $scheme . '://' . preg_replace('@^/+@','',$rel);
+
+		//queries/fragments
 		if ($rel[0]=='#' || $rel[0]=='?')
-			return $base.$rel;
-		
-		//remove non-directory element from path
-		$path = preg_replace('@/[^/]*$@', '', $path);
+			return $base . $rel;
 
 		//destroy path if relative url points to root
 		if ($rel[0] == '/')
 			$path = '';
 
 		//dirty absolute URL
-		$abs = "$host$path/$rel";
+		$abs = $host . $port . $path . '/' . $rel;
 
 		//replace '//' or '/./' or '/foo/../' with '/'
 		$rg = '@(//)|(/\./)|(/[^/]+/\.\./)@';
@@ -135,7 +139,7 @@ class NLSDownloader {
 			//FB::log($abs,'abs in cycle');
 		}
 
-		return  $scheme.'://'.$abs;
+		return $scheme . '://' . $abs;
 	}
 
 }
