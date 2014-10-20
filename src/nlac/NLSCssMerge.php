@@ -79,7 +79,7 @@ class NLSCssMerge {
 	public function process($cssUrl, $baseUrl = null, $cssContent = null, $level = 0) {
 
 		if (!$cssUrl && $cssContent===null)
-			throw new Exception('Either the content or the url of the css must be given');
+			throw new \Exception('Either the content or the url of the css must be given');
 
 		if (!$baseUrl)
 			$baseUrl = $this->downloader->options['appBaseUrl'];
