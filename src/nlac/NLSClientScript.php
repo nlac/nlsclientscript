@@ -443,9 +443,10 @@ class NLSClientScript extends \CClientScript {
 		$this->mergeIfXhr = ($this->mergeIfXhr ? 1 : 0);
 
 		//js code
+		$that = $this;
 		$js = file_get_contents(__DIR__ . '/nlsc.min.js');
-		$js = preg_replace_callback('/_(excludePattern|includePattern|mergeIfXhr|resMap2Request)_/', function($m) {
-			return trim($this->$m[1],';');
+		$js = preg_replace_callback('/_(excludePattern|includePattern|mergeIfXhr|resMap2Request)_/', function ($m) use ($that) {
+			return trim($that->$m[1],';');
 		}, $js);
 
 		$this->registerScript('fixDuplicateResources', $js, \CClientScript::POS_HEAD);
