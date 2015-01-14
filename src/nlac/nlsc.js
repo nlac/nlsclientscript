@@ -6,6 +6,7 @@ var cont = (ieVer && ieVer<7.1) ? document.createElement("div") : null;
 if (!$.nlsc)
 	$.nlsc={resMap:{}};
 
+//Normalizes the url
 $.nlsc.normUrl=function(url) {
 	if (!url) return null;
 	if (cont) {
@@ -18,6 +19,8 @@ $.nlsc.normUrl=function(url) {
 		return null;
 	return url.replace(/\?*&*(_=\d+)?&*$/g,"");
 };
+
+//Simple custom hash function, the same exists in NLSClientScript.php
 $.nlsc.h=function(s) {
 	var h = 0, i;
 	for (i = 0; i < s.length; i++) {
@@ -25,25 +28,36 @@ $.nlsc.h=function(s) {
 	}
 	return ""+h;
 };
+
+//Fetching scripts in the DOM, run once
 $.nlsc.fetchMap=function() {
-	//fetching scripts from the DOM
-	for(var url,i=0,res=$(document).find("script[src]"); i<res.length; i++) {
-		if (url = this.normUrl(res[i].src ? res[i].src : res[i].href))
-			this.resMap[url] = {h:$.nlsc.h(url),d:1};//hash,loaded
-	}//i
+	if (!$.nlsc.fetched) {
+		for(var url,i=0,res=$(document).find("script[src]"); i<res.length; i++) {
+			if (url = this.normUrl(res[i].src ? res[i].src : res[i].href)) {
+				this.resMap[url] = {
+					h: $.nlsc.h(url), //hash
+					d: 1 //loaded or requested by ajax
+				};
+			}
+		}//i
+		$.nlsc.fetched=1;
+	}
 };
+
+//array of hashes, serialized (needed for server side)
 $.nlsc.smap=function() {
 	var s="[";
 	for(var url in this.resMap)
 		s += "\""+this.resMap[url].h+"\",";
 	return s.replace(/,$/,"")+"]";
 };
+
+//jquery ajaxSetup params
 var c = {
 	global:true,
 	beforeSend: function(xhr, opt) {
-
+		//with the latest jQuery, beforeSend() isn't called for non-script request (at least not always)
 		if (!$.nlsc.fetched) {
-			$.nlsc.fetched=1;
 			$.nlsc.fetchMap();
 		}//if
 
@@ -57,23 +71,27 @@ var c = {
 		//normalize url + disable no-cache random param
 		var url = opt.url = $.nlsc.normUrl(opt.url);
 		if (!url) return true;
-
+		
+		/*
+		//monkey patching script converter of jq - i think it is not neccessary, we can set d to 1 as the script is requested
 		if (opt.converters && (opt.converters["text script"])) {
 			var saveConv = opt.converters["text script"];
-			opt.converters["text script"] = function() {				
+			opt.converters["text script"] = function() {
 				if (!$.nlsc.resMap[url].d) {
-					$.nlsc.resMap[url].d = 1;
+					$.nlsc.resMap[url].d = 1;//setting "loaDed" flag to 1
 					saveConv.apply(window, arguments);
 				}
 			};
 		}
+		*/
 
 		var r = $.nlsc.resMap[url];
 		if (r) {
-			if (r.d)
+			if (r.d) //if already loaded (or at least requested by ajax), do not request again
 				return false;
 		} else {
-			$.nlsc.resMap[url] = {h:$.nlsc.h(url),d:0};
+			//registering the new script
+			$.nlsc.resMap[url] = {h:$.nlsc.h(url),d:1};
 		}
 
 		return true;
@@ -90,5 +108,8 @@ if (ieVer)
 	};
 
 $.ajaxSetup(c);
+
+//grabbing already loaded scripts
+$(document).ready(function(){$.nlsc.fetchMap()});
 
 })(jQuery,_excludePattern_,_includePattern_,_mergeIfXhr_,_resMap2Request_);
