@@ -71,19 +71,6 @@ var c = {
 		//normalize url + disable no-cache random param
 		var url = opt.url = $.nlsc.normUrl(opt.url);
 		if (!url) return true;
-		
-		/*
-		//monkey patching script converter of jq - i think it is not neccessary, we can set d to 1 as the script is requested
-		if (opt.converters && (opt.converters["text script"])) {
-			var saveConv = opt.converters["text script"];
-			opt.converters["text script"] = function() {
-				if (!$.nlsc.resMap[url].d) {
-					$.nlsc.resMap[url].d = 1;//setting "loaDed" flag to 1
-					saveConv.apply(window, arguments);
-				}
-			};
-		}
-		*/
 
 		var r = $.nlsc.resMap[url];
 		if (r) {

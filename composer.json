@@ -1,6 +1,6 @@
 {
 	"name": "nlac/nlsclientscript",
-	"version": "7.0.0-beta5",
+	"version": "7.0.0-beta6",
 	"description": "Yii ClientScript extension for prevent reloading javascript and merging/minfying resources",
 	"keywords": ["php", "yii", "CClientScript", "reload", "merge", "minify", "javascript", "css"],
 	"homepage": "https://github.com/nlac/nlsclientscript",

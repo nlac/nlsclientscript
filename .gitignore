@@ -2,3 +2,4 @@
 *.bat
 vendor
 tests/_output/*
+nbproject

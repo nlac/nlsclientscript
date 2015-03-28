@@ -23,6 +23,15 @@ class NLSClientScript extends \CClientScript {
 **/
 
 /**
+ * @param int $nlsScriptPosition
+ * position of the nlsclientscript code
+ * If false -> the snippet won't be inserted, duplicates won't be eliminated
+ * 
+ * In parallel, $coreScriptPosition may be set, eg. both can be set to \CClientScript::POS_END
+ */
+	public $nlsScriptPosition = \CClientScript::POS_HEAD;
+
+/**
  * @param string $includePattern
  * a javascript regex eg. '/\/scripts/' - if set, only the matched URLs will be filtered, defaults to null
  * (can be set to string 'null' also to ignore it)
@@ -183,8 +192,9 @@ class NLSClientScript extends \CClientScript {
 	public function init() {
 		parent::init();
 		
-		//we need jquery
-		$this->registerCoreScript('jquery');
+		if (is_numeric($this->nlsScriptPosition))
+			//-> we need jquery
+			$this->registerCoreScript('jquery');
 		
 		//set root working dir
 		$this->workingDirPath = rtrim(\Yii::app()->assetManager->basePath, '/') . '/nls';
@@ -212,8 +222,14 @@ class NLSClientScript extends \CClientScript {
 		), $this->downloader);
 
 	}
+	
+	protected function addAppVersion($url) {
+		if (!empty($this->appVersion) && !NLSUtils::isAbsoluteUrl($url))
+			$url = NLSUtils::addUrlParams($url, array('nlsver' => $this->appVersion));
+		return $url;
+	}
 
-/**
+		/**
  * Generates the file name of a resource
  */
 	protected function hashedName($name, $ext = 'js') {
@@ -260,7 +276,7 @@ class NLSClientScript extends \CClientScript {
 			//from yii 1.1.14 $scriptFile can be an array
 			foreach($this->scriptFiles[$pos] as $src=>$scriptFile) {
 
-				$absUrl = $this->downloader->toAbsUrl($src);
+				$absUrl = $this->addAppVersion($this->downloader->toAbsUrl($src));
 				
 				if ($this->mergeJsExcludePattern && preg_match($this->mergeJsExcludePattern, $absUrl)) {
 					$finalScriptFiles[$src] = $scriptFile;
@@ -326,13 +342,13 @@ class NLSClientScript extends \CClientScript {
 			$files = array();
 			foreach($this->cssFiles as $url=>$media) {
 				
-				$absUrl = $this->downloader->toAbsUrl($url);
+				$absUrl = $this->addAppVersion($this->downloader->toAbsUrl($url));
 				
 				if ($this->mergeCssExcludePattern && preg_match($this->mergeCssExcludePattern, $absUrl)) {
 					$newCssFiles[$url] = $media;
 					continue;
 				}
-					
+
 				if ($this->mergeCssIncludePattern && !preg_match($this->mergeCssIncludePattern, $absUrl)) {
 					$newCssFiles[$url] = $media;
 					continue;
@@ -429,10 +445,20 @@ class NLSClientScript extends \CClientScript {
 
 		parent::renderBodyEnd($output);
 	}
-
+	
+	public function registerScriptFile($url, $position = null, array $htmlOptions = array()) {
+		$url = $this->addAppVersion($url);
+		//\Yii::log('URL regged:' . $url, 'info');
+		return parent::registerScriptFile($url, $position, $htmlOptions);
+	}
+	
+	public function registerCssFile($url, $media = '') {
+		return parent::registerCssFile($this->addAppVersion($url), $media);
+	}
+	
 	protected function _putnlscode() {
 
-		if (\Yii::app()->request->isAjaxRequest)
+		if (!is_numeric($this->nlsScriptPosition) || \Yii::app()->request->isAjaxRequest)
 			return;
 
 		//preparing vars for js generation
@@ -449,6 +475,6 @@ class NLSClientScript extends \CClientScript {
 			return trim($that->$m[1],';');
 		}, $js);
 
-		$this->registerScript('fixDuplicateResources', $js, \CClientScript::POS_HEAD);
+		$this->registerScript('fixDuplicateResources', $js, $this->nlsScriptPosition);
 	}
 }
