@@ -472,7 +472,8 @@ class NLSClientScript extends \CClientScript {
 		$that = $this;
 		$js = file_get_contents(__DIR__ . '/nlsc.min.js');
 		$js = preg_replace_callback('/_(excludePattern|includePattern|mergeIfXhr|resMap2Request)_/', function ($m) use ($that) {
-			return trim($that->$m[1],';');
+			$nlscClientParameter = $m[1];
+			return trim($that->$nlscClientParameter,';');
 		}, $js);
 
 		$this->registerScript('fixDuplicateResources', $js, $this->nlsScriptPosition);
