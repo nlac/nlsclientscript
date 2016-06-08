@@ -145,6 +145,7 @@ class NLSClientScript extends \CClientScript {
 /**
  * @param string $appVersion
  * Optional, version of the application.
+ * Set 'auto' will allow auto regenerate when source changed
  * If set to not empty, will be appended to the merged js/css urls (helps to handle cached resources).
  **/
 	public $appVersion = '';
@@ -188,9 +189,15 @@ class NLSClientScript extends \CClientScript {
 	protected $cssMerger = null;
 	
 	
+	protected $isAutoAppVersion = false;
 	
 	public function init() {
 		parent::init();
+		
+		if ($this->appVersion == 'auto'){
+			$this->isAutoAppVersion = true;
+			$this->appVersion = 0;
+		}
 		
 		if (is_numeric($this->nlsScriptPosition))
 			//-> we need jquery
@@ -224,6 +231,14 @@ class NLSClientScript extends \CClientScript {
 	}
 	
 	protected function addAppVersion($url) {
+		// if auto version flag is set (appVersion='auto')
+		// get file modified time and use as version before hashing
+		if ($this->isAutoAppVersion && !NLSUtils::isAbsoluteUrl($url)) {
+			$ver = $this->getFileMTime($url);
+			$this->appVersion = max($this->appVersion, $ver);
+			return NLSUtils::addUrlParams($url, array('nlsver' => $ver));
+		}
+		// original none auto
 		if (!empty($this->appVersion) && !NLSUtils::isAbsoluteUrl($url))
 			$url = NLSUtils::addUrlParams($url, array('nlsver' => $this->appVersion));
 		return $url;
@@ -477,5 +492,9 @@ class NLSClientScript extends \CClientScript {
 		}, $js);
 
 		$this->registerScript('fixDuplicateResources', $js, $this->nlsScriptPosition);
+	}
+	
+	private function getFileMTime($path){
+		return filemtime($_SERVER['DOCUMENT_ROOT'].$path);
 	}
 }
