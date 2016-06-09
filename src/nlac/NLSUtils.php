@@ -19,5 +19,9 @@ class NLSUtils {
 	public static function isAbsoluteUrl($url) {
 		return preg_match('@^https?://@', $url);
 	}
+	
+	public static function getFileMTime($path){
+		return filemtime($_SERVER['DOCUMENT_ROOT'].$path);
+	}
 
 }
