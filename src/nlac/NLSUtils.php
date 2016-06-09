@@ -19,5 +19,11 @@ class NLSUtils {
 	public static function isAbsoluteUrl($url) {
 		return preg_match('@^https?://@', $url);
 	}
+	
+	public static function getFileMTime($path){
+		// append doc root and remove trailing
+		$path = $_SERVER['DOCUMENT_ROOT'].preg_replace('@[\?#].*$@', '', $path);
+		return file_exists($path) ? filemtime($path) : 0;
+	}
 
 }
