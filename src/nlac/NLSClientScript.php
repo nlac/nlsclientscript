@@ -234,7 +234,7 @@ class NLSClientScript extends \CClientScript {
 		// if auto version flag is set (appVersion='auto')
 		// get file modified time and use as version before hashing
 		if ($this->isAutoAppVersion && !NLSUtils::isAbsoluteUrl($url)) {
-			$ver = $this->getFileMTime($url);
+			$ver = NLSUtils::getFileMTime($url);
 			$this->appVersion = max($this->appVersion, $ver);
 			return NLSUtils::addUrlParams($url, array('nlsver' => $ver));
 		}
@@ -494,7 +494,4 @@ class NLSClientScript extends \CClientScript {
 		$this->registerScript('fixDuplicateResources', $js, $this->nlsScriptPosition);
 	}
 	
-	private function getFileMTime($path){
-		return filemtime($_SERVER['DOCUMENT_ROOT'].$path);
-	}
 }
