@@ -21,7 +21,9 @@ class NLSUtils {
 	}
 	
 	public static function getFileMTime($path){
-		return filemtime($_SERVER['DOCUMENT_ROOT'].$path);
+		// remove trailing
+		$path = preg_replace('@[\?#].*$@', '', $path);
+		return file_exists($path) ? filemtime($_SERVER['DOCUMENT_ROOT'].$path) : 0;
 	}
 
 }
